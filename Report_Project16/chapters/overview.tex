@@ -1,0 +1,23 @@
+\chapter{Implementation Overview}
+For the development of the OTA protocol we decided to use a \textbf{Google Cloud server}, and \textbf{ESP32} board for the IoT connectivity.
+
+The IoT update travel through the server and is downloaded from the device under a specific command.
+For the upload of the binary file on the server we can easy go on the correct drive page, linked to the related IoT and copy there.
+
+Once the binary file has been updated, the OTA procedure can start.
+Upon request, the IoT downloads the binary file from the server using the SSL channel and trust it, thanks to the hard-coded Certificate which is embedded in each device.
+\begin{figure}[h!]
+\vspace{0.5cm}
+\centering
+\includegraphics[width=1\textwidth]{images/upload download.png}
+\caption{Summary Scheme}
+\label{fig:generalschema} % This is the image label, with which you can refer to the image in any document location.
+\end{figure}
+
+If all the procedure and control goes without problem, the downloaded binary file is flashed on one of the two free partitions of the device.
+
+The memory of ESP32 is partitioned in 3 part: one, the P0, is the back-up partition where there is the first flashed version.
+The other two P1 and P2 are for future OTA updates. First we boot on P1 then P2 and then return to P1, and so on, we toggle the area at every update.
+\raggedright
+
+\raggedright

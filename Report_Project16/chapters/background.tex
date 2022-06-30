@@ -1,0 +1,69 @@
+\chapter{Background}
+
+In this chapter we introduce some concepts and tools used for the project development.
+\section{Security aspect}
+In order to be sure that the OTA procedure is completed correctly and no one or nothing can change the update file, we want to maintain security concepts:
+\begin{itemize}
+\item \textbf{Protecting the update Integrity}: We want to ensure that the source file sent is identical to the one received
+\item \textbf{Protecting the update Authentication}: We want to make sure that the update arrives from the original OEM
+\item \textbf{Protecting the update Authenticity}: We want to make sure that the update is sent to the required device
+\item \textbf{Protecting the update Confidentiality}: We want that no one is able to read the data during transmission 
+\end{itemize} \newpage
+
+\section{Hash function}
+To ensure the \textbf{integrity} of this procedure and update file we use an Hash function.
+
+Hash is a function that can be used to map data of arbitrary size to fixed-size values. The values returned by an hash function are called hash digests.
+
+Digest is a unique result for a given input, there cannot be (within a certain precision) two identical results starting from two different inputs.
+
+Using these considerations, if two digests are identical, the two inputs files are necessarily the same, and we use this principle to ensure that the file we send for the update is the same as the one that is received and subsequently installed.
+\begin{figure}[h!]
+\vspace{0.5cm}
+\centering
+\includegraphics[width=0.6\linewidth]{images/hash.png}
+\caption{Hash Function}
+\label{fig:generalschema} % This is the image label, with which you can refer to the image in any document location.
+\end{figure}
+
+\centering
+
+\raggedright
+\section{HTTP/HTTPS}
+For the communication between server and client we used HTTP as communication protocol. HTTP is a request/response protocol that match our needs for the download of the new update file.
+In particular we want to access to the SSL layer (Secure Socket Layer), and this is possible using HTTPS protocol.
+SSL is a standard technology that ensures the security of an Internet connection session and protects sensitive data exchanged between the two systems by preventing cybercriminals from reading and modifying the information transferred (known as MITM attack).
+Below there is a summary of the exchange of asymmetric and symmetric keys and certified.
+\begin{itemize}
+\item Client (IoT) Request secure connection
+\item Server receives request and generates two asymmetric keys: one public and one private
+\item Server sends the public key to the IoT device with the Certificate Authority signature
+\item IoT device keeps public key and check the CA signature
+\item If IoT device trust the CA, generates two identical encryption keys (session keys)
+\item IoT device encrypts session key using public key and send the encrypted key to the server
+\item Server decrypts the message with his private key
+\item The two parties have an identical key and can communicate securely
+\end{itemize}
+
+\begin{figure}[h!]
+\vspace{0.5cm}
+\centering
+\includegraphics[width=1\textwidth]{images/https.png}
+\caption{HTTPS Protocol Schematic}
+\label{fig:generalschema} % This is the image label, with which you can refer to the image in any document location.
+\end{figure}
+
+\begin{flushleft}
+\subsection{Certificate Authority}
+\end{flushleft}
+A certificate authority (CA) is a third party actor or organization that acts to validate the identities (such as websites, server our case) and bind them to cryptographic keys through the digital certificates.
+
+\section{FreeRTOS}
+FreeRTOS is a market-leading real-time operating system (RTOS) for microcontrollers and small microprocessors. Distributed freely under the MIT open source license, FreeRTOS includes a kernel and a growing set of IoT libraries suitable for use across all industry sectors. FreeRTOS is built with an emphasis on reliability and ease of use.
+
+\fcolorbox{black}{gray!30}{\url{https://www.freertos.org/}}
+
+\section{Preliminary}
+In \textbf{appendice B} is possible to see preliminary conceptual diagram and first simulation, using OpenSSL.
+\par
+\fcolorbox{black}{gray!30}{\hyperref[Preliminary]{Appendice B}}

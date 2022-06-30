@@ -1,0 +1,91 @@
+\chapter{Implementation Details}
+\begin{figure}[h!]
+\includegraphics[width=1\textwidth]{images/Generale.jpg}
+\caption{Process Diagram}
+\label{fig:generalschema} % This is the image label, with which you can refer to the image in any document location.
+\end{figure}
+
+In this section we can go on the implementation detail of this protocol, and the operational steps to set up the machine and work with ESP32 board.
+As a remind, this is the folder project:
+\fcolorbox{black}{gray!30}{\url{https://drive.google.com/drive/folders/12X8qwaMzzthq3UGNoWMIBG-sxKIKymrK}}
+\section{Include}
+\begin{flushleft}
+\subsection{Wireless Connectivity}
+\end{flushleft}
+Wireless connectivity is required for the OTA update procedure. One of the key point for the procedure, is the usage of internet connectivity.
+
+This could gives us potential benefits: we can run the update without connection to a local network, the devices can communicate even if they are not within the same intranet, but on the same time we could be more sensitive to cyber attacks.
+
+
+As mentioned, we use an ESP32 board, that is equipped with Wi-Fi module and good library well explained to use it.
+It also has good libraries for wireless communication and secure boot.
+
+\begin{itemize}
+    \item \fcolorbox{black}{gray!30}{esp\textunderscore wifi.h} - wifi connectivity
+    \item \fcolorbox{black}{gray!30}{nvs\textunderscore flash.h} - wifi configuration
+    \item \fcolorbox{black}{gray!30}{esp\textunderscore http\textunderscore client.h } - using client server 
+
+\end{itemize}
+
+\subsection{FreeRTOS}
+FreeRTOS is used as an operating system for tasks and for interrupt handling.
+In particular, an interrupt is used on one of the buttons on the board, to start the OTA download and control routine.
+We could implement any other method to activate the procedure, eg. a message sent from another ECU, timer or any other signal, we had many GPIOs available, however the button seemed to us for the demonstration demo to be a quick and convenient solution to use this feature.
+For future developments it is therefore possible to think about different solutions more suitable for the application of use.
+Libraries used:
+\begin{itemize}
+    \item \fcolorbox{black}{gray!30}{freertos/FreeRTOS.h} - freertos library 
+    \item \fcolorbox{black}{gray!30}{freertos/task.h} - freertos library
+    \item \fcolorbox{black}{gray!30}{freertos/semphr.h} - freertos library
+    \item \fcolorbox{black}{gray!30}{driver/gpio.h} - resource library
+\end{itemize}
+
+\begin{flushleft}
+\section{Memory Partition}
+\end{flushleft}
+The memory of the board is divided in 3 partition of 1MB.
+\begin{itemize}
+    \item P0 : Partition flashed with the first Software, used also has back-up (Flashed with wired connection)
+    \item P1-P2 : Partitions free for future update (Flash with OTA protocol)
+\end{itemize}
+\centering
+
+\includegraphics[width=0.85\textwidth]{images/all.png}
+
+\begin{flushleft}
+\section {Start Communication}
+\end{flushleft}
+
+\fcolorbox{black}{gray!30}{\url{https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/protocols/esp_http_client.html}}
+
+
+\paragraph{}
+\begin{flushleft}
+\textbf{Communication happens using http client server. Configuration:}
+\end{flushleft}
+
+\begin{verbatim}
+    // as we use http protocol:
+    esp_http_client_config_t clientConfig = {
+    .url = "Update Link", // here where we have the binary file
+    .event_handler = client_event_handler,  
+    .cert_pem = (char *)server_cert_pem_start // Certificate Cfg
+\end{verbatim}
+
+\begin{flushleft}
+\section {Download and install in partition}
+\end{flushleft}
+
+\fcolorbox{black}{gray!30}{\url{https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/esp_https_ota.html}}
+\paragraph{}
+OTA APIs used: 
+\fcolorbox{black}{gray!30}{\texttt{esp\_https\_ota}}
+\begin{verbatim}
+    // esp_https_ota returns ok and the binary file is putted in the ota partition that we setted
+    if(esp_https_ota(&clientConfig) == ESP_OK)
+    {
+      ESP_LOGI(TAG,"firmware update is successful now we are in version %d.",firmware_version);
+      vTaskDelay(pdMS_TO_TICKS(5000)); //some delay before restarting 
+      esp_restart(); //restaring our microcontroller and start from the new memory partition
+    }
+\end{verbatim}

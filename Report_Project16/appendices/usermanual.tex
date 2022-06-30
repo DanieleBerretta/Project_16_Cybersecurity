@@ -1,0 +1,58 @@
+\chapter{User Manual}
+\begin{flushleft}
+\label{usermanual}
+In this chapter is described how to use the OTA protocol and retry to perform itself the demo seen on the project presentation Demo.
+\begin{flushleft}
+\section{Step 1: ESP32 ESP-IDF}
+\end{flushleft}
+To use the ESP32 board we have to install the ESP-IDF, the development framework used to build and flash our project.
+There you can find the link with more information and how to download it: 
+
+\fcolorbox{black}{gray!30}{\url{https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html}}
+
+As IDE we used VS Code, but it is possible use other editor tool, as Eclipse etc.
+Once you have the all tools installed, you can open the ESP-IDF tool, (is like a prompt command), and go in the project folder "cd C:project path". than using the command:
+\begin{itemize}
+    \item \fcolorbox{black}{gray!30}{idf.py build} - compile and build the project 
+    \item \fcolorbox{black}{gray!30}{idf.py flash} - research ESP32 COM port and flash it
+    \item \fcolorbox{black}{gray!30}{idf.py monitor} - show the serial comunication in orther to follow the update step
+\end{itemize}
+Also at this link you can find other useful command: 
+\fcolorbox{black}{gray!30}{\url{https://docs.espressif.com/projects/esp-idf/en/v4.2/esp32/api-guides/build-system.html}}
+\begin{flushleft}
+\section{Step 2: Configure the Wi-Fi}
+\end{flushleft}
+In order to connect the board on the Wi-Fi network you need to change and modify the Wi-Fi credential with your actual connection.
+Open the folder at this link:
+\fcolorbox{black}{gray!30}{\url{https://drive.google.com/drive/folders/12X8qwaMzzthq3UGNoWMIBG-sxKIKymrK}}
+
+Download it and open with a text editor.
+Replace now \fcolorbox{black}{gray!30}{"myssid"} with actual SSID connection and change  \fcolorbox{black}{gray!30}{"mypassword"} with the connection password.
+\begin{flushleft}
+\section{Step 3: Compile and Flash ESP32}
+\end{flushleft}
+we have everything set to build the code.
+Open ESP-IDF and go on the project path.
+digit \fcolorbox{black}{gray!30}{idf.py build} and the build start.
+At the end press \fcolorbox{black}{gray!30}{idf.py flash} and the SW will Flash on the board.
+This is the version 0 that is flashed on partition zero, used also as back up.
+\begin{flushleft}
+\section{Step 4: Start procedure}
+\end{flushleft}
+At this point everything is configured and ready, you can start to use the OTA protocol.
+To see the protocol working you can modify the software adding or changing the release number and compile it.
+Once compiled, copy the bin and paste on Google Drive folder (in our case the link is that one, but is possible to use your own drive page), if changed the related link on the code.
+To flash the upload you can press the button on the ESP32 Board and see the OTA update working.
+If all gone fine you have displayed the new release SW.
+\end{flushleft}
+
+
+
+
+
+
+
+
+
+
+

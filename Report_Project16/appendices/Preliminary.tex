@@ -1,0 +1,83 @@
+\chapter{Preliminary}
+\label{Preliminary}
+\begin{flushleft}
+When we approached the project, we looked at which solutions had already been implemented.
+Below are some links to slides, docs and video courses that introduce security and OTA protocol.
+\begin{itemize}
+    \item Slide from ST: \url{https://drive.google.com/drive/folders/18AetVN1BpxSz1GdH3sN6-Kgl6JH-_lUo}
+    \item Video lesson from ST: \url{https://www.youtube.com/playlist?list=PLnMKNibPkDnGd7J7fV7tr-4xIBwkNfD--}
+    \item Documentation from TI: \url{https://www.ti.com/lit/wp/sway021/sway021.pdf?ts=1650211817745}
+    \item SSL certificate:
+    
+    \url{https://www.youtube.com/watch?v=33VYnE7Bzpk}
+\end{itemize}
+\newpage
+\section{OpenSSL and first demo}
+At this point, before starting with a targeted development on a specific OS and on a specific board, we have implemented a simulation using the OpenSSL library.
+
+For further detail: \url{https://www.openssl.org/}
+The first diagram developed for this application was this:
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{images/diagram.png}
+\caption{Procedure Diagram}
+\label{fig:generalschema}
+\end{figure}
+\textbf{In this diagram}:
+IoT master will send a firmware update to the device 1.
+First, it apply hash function SHA256 and encrypt it with the master private key, then combine together the firmware and cipher text, and then encrypt them by the public key and send them to device 1.
+Device 1 will decrypt them with its private key and now we have the firmware update and the cipher text, applying same hash used by the master and decrypt by master public key and then comparing the two hashes together, if are the same it's ok and authenticity is guaranteed.
+\paragraph{}
+To simulate this procedure we can install on PC a board simulator or install OpenSSL usable by prompt command. Below links:
+\begin{itemize}
+    \item FreeRTOS simulator: \url{https://www.freertos.org/install-and-start-qemu-emulator/}
+    \item Raspberry simulator: \url{https://www.raspberrypi.com/software/raspberry-pi-desktop/}
+\end{itemize}
+\subsection{Command OpenSSL}
+\paragraph{Master:}
+\begin{verbatim}
+ openssl genpkey-algorithm rsa-out master_private_key.pem 
+ openssl pkeyin master private_key.pem pubout out master_public_key.pem 
+ openssl dgst-sha256 -sign master private_key.per out cipher_text firmwareupdate.c
+\end{verbatim}
+\paragraph{Device A:}
+\begin{verbatim}
+ openssl genpkey -algorithm rsa -out deviceA_private_key.pen 
+ openssl okey to deviceA_private_key.pen -pubout -out deviceA_public_key.pem
+ openssl dgst-sha256 -verify master public key.pen signature cipher_text
+ firmwareupdate.c
+\end{verbatim}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{images/simulation1.png}
+\caption{First Simulation Result}
+\label{fig:generalschema}
+\end{figure}
+\textbf{Resource File:}
+\fcolorbox{black}{gray!30}{\url{https://drive.google.com/drive/folders/1Cbt19ni2mlKOWGnxKtJ_QcgR-52DhUYt?usp=sharing}}
+
+\section{RIOT - FreeRTOS}
+After having made a base project and have understood the OTA protocol and necessary security, we looked at which OS could best fit our application.
+\begin{itemize}
+\item RIOT: \url{https://www.riot-os.org/}
+\item FreeRTOS: \url{www.freertos.org}
+\end{itemize}
+Both OSes were compatible, but we found more documentation and examples on FreeRTOS.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{flushleft}

@@ -1,0 +1,12 @@
+\chapter{Introduction}
+An over-the-air (OTA) update is the wireless delivery of new software, firmware, or other data to mobile devices. Wireless carriers and original equipment manufacturers (OEMs) typically use OTA updates to deploy firmware and configure phones to use on their networks over Wi-Fi or mobile broadband. The initialization of a newly purchased phone, for example, requires an Over-The-Air update. With the rise of smartphones, tablets and internet of things (IoT) devices, carriers and manufacturers have turned to different Over-The-Air update architecture methods to deploy new operating systems (OSes) to these devices.
+\section{Goal}
+The goal of this project is to define and implement an inter-cluster protocol where nodes verify the binary of other nodes by means of co-operative hash checking. Defining/Implementation of mechanism to receive/execute the updates.
+\section{Constraints}
+The target design/implementation is for IoT devices that are communication within cluster of nodes,a real time operating system,such as freertos shall run in our boards.
+\section{Contextualization} 
+Imagine a situation in which a company has several IoT applications scattered around the factory, or a home automation where we have some board for different applications.
+We need to update them, but we want to update all without having to manually reprogram them one by one.
+To do this we need a OTA protocol that also ensure that this update is completed correctly and in a secure way, reducing the possibility of attacks and file corruptions.
+
+\raggedright

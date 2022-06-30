@@ -1,0 +1,120 @@
+\chapter{Results}
+\begin{flushleft}
+In conclusion we can say that we have developed a working OTA protocol.
+You will have seen or will see in the demo that the OTA update, on the board, takes place without problems.
+It is possible to repeat the operation several times and multiplexed on multiple devices.
+\begin{flushleft}
+\section{Known Issues}
+\end{flushleft}
+The major problem that we see on this solution is the server used.
+From one point of view, Google drive provides us advantages in terms of simplicity of use and versatility; Drive already gives us a well-developed server that is easy to use and within everyone's reach and in addition, the Certified CA that is very important for the security side.
+
+But using Google Drive, that is a third party server, accessible from anyone, does not give us absolute security during the loading and saving phase of the .bin.
+For sure we can guarantee for the download and upload a HTTPS protocol, but while the file is on the server someone can stole my credential and modify my new software.
+
+One solution could be create a own server with own CA, preferably on a local network, but this takes away the possibility of uploading the board remotely away from the device.
+Another possibility could be adding a subsequent hash check that we try to explain in the Future Work Chapter.
+\begin{flushleft}
+\section{Future Work}
+\end{flushleft}
+
+\begin{flushleft}
+\subsection{Cooperative hash check}
+\end{flushleft}
+At the end of the OTA update process the new software is safely downloaded from Google Drive. We want to add the possibility, perhaps under a specific command, to verify the hash of the .bin file downloaded by another IoT connected on the same network.
+Below is represented one operations sequence that allows you to do this check.
+\begin{itemize}
+    \item Master send to Checker Validation Request
+    \item Checker send to Server the Request download Software of master IoT
+    \item Server Answer to checker with the download Software of master IoT
+    \item Checker Saves in the partition that is not using (or P2 or P3) and calculate Hash of that partition
+    \item Checker Request to Master the Hash of partition that is running
+    \item Master Answer to Checker with the digest string
+    \item Checker verify and validate the update
+\end{itemize}
+\paragraph{Precondition}
+
+\begin{itemize}
+    \item The IoT devices to perform this check need to be in the same network
+    \item All the IoT devices are configurable as Master or Checker depending on the check request
+    \item All the IoT devices have a static address. All the IoT devices know all the address of the cluster 
+    \item The links to download the bin of other IoT device is hard-coded on all the board. This means that an IoT device can download all the software related to its cluster
+
+\end{itemize}
+
+\includegraphics[width=1\linewidth]{images/check hash.jpg}
+\begin{flushleft}
+\subsection{Generation hash for inter cluster check}
+\end{flushleft}
+\paragraph{Using FreeRTOS library}
+\paragraph{}
+\fcolorbox{black}{gray!30}{\url{https://www.freertos.org/pkcs11/pkcs11-mechanisms-digest-demo.html}}
+
+Core PKCS 11 is a library belonging to FreeRTOS that allows us to hash a given array.
+At the link above you will find an example of how the digest of the SHA256 function is calculated.
+\begin{verbatim}
+/***************************************************************************************/
+/* Hash with SHA256 mechanism. */
+xDigestMechanism.mechanism = CKM_SHA256;
+
+/* Initializes the digest operation and sets what mechanism will be used
+* for the digest. */
+xResult = pxFunctionList->C_DigestInit( hSession,
+                                        xDigestMechanism );
+configASSERT( CKR_OK == xResult );
+
+/* Pass a pointer to the buffer of bytes to be hashed, and its size. */
+xResult = pxFunctionList->C_DigestUpdate( hSession,
+                                          pxKownMessage,
+                                          sizeof( pxKownMessage ) - 1 );
+configASSERT( CKR_OK == xResult );
+
+/* Retrieve the digest buffer. Since the mechanism is an SHA-256 algorithm,
+* the size will always be 32 bytes. If the size cannot be known ahead of time,
+* a NULL value to the second parameter xDigestResult, will set the third parameter,
+* pulDigestLen to the number of required bytes. */
+xResult = pxFunctionList->C_DigestFinal( hSession,
+                                         xDigestResult,
+                                         ulDigestLength );
+configASSERT( CKR_OK == xResult );
+/***************************************************************************************/
+\end{verbatim}
+
+\paragraph{Using ESP library}
+\paragraph{}
+In our case is not possible to consider the load for the digest as a file or a string but better consider it as a portion of memory, in particular in this case a partition.
+\fcolorbox{black}{gray!30}{\url{https://www.esp32.com/viewtopic.php?t=16327}}
+\begin{verbatim}
+/***************************************************************************************/
+ #include <sys/stat.h>
+ #include "esp_err.h"
+ #include "esp_log.h"
++#include "esp_partition.h"
+ #include "esp_spiffs.h"
+ 
+ static const char *TAG = "example";
+@@ -96,4 +97,13 @@ void app_main(void)
+     // All done, unmount partition and disable SPIFFS
+     esp_vfs_spiffs_unregister(NULL);
+     ESP_LOGI(TAG, "SPIFFS unmounted");
++
++    uint8_t hash[32] = {0};
++    const esp_partition_t *p = esp_partition_find_first(ESP_PARTITION_TYPE_DATA,
++                                                        ESP_PARTITION_SUBTYPE_DATA_SPIFFS, NULL);
++    ESP_ERROR_CHECK( esp_partition_get_sha256(p, hash) );
++    printf("SPIFFS partition hash ");
++    for (int i = 0; i < sizeof(hash); i++) {
++        printf("%02x ", hash[i]);
++    }
++    printf("\n");
+ }
+/***************************************************************************************/
+\end{verbatim}
+\begin{flushleft}
+\subsection{Communication between IoT (ESP32)}
+\end{flushleft}
+To allow the ESP32 to start communication among them, we can use for our project the Protocol Communication (Protocomm).
+
+\fcolorbox{black}{gray!30}{\url{https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/provisioning/protocomm.html}}
+At this link is possible to see the documentation and related example how to use protocomm API for a secure communication session.
+\end{flushleft}
